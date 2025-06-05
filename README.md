@@ -6,7 +6,7 @@
 
 ## Site URL
 
--   https://predpwa.netlify.app/markets
+-   https://predpwa.netlify.app
 -   https://pred-pwa.raiyanrazi.dev
 
 ---
