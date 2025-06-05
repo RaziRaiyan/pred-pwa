@@ -380,7 +380,7 @@ const Trade = () => {
 					{/* Price Input */}
 					<div className="mb-2">
 						<div className="flex items-center bg-neutral-500 border border-neutral-600 px-3 py-2 h-9 rounded-lg">
-							<span className="text-black/50 font-semibold mr-3 tracking-wide">
+							<span className="text-black/50 font-semibold mr-3 tracking-wide whitespace-nowrap">
 								Price (USD)
 							</span>
 							<input

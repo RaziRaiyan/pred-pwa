@@ -47,13 +47,15 @@ const OrderBook = memo(
 						))}
 
 					{/* Current Price */}
-					<div className="flex justify-between font-medium text-black h-[22px]">
+					<div className="flex items-center justify-between font-medium text-black h-[22px]">
 						<span className="text-sm">
 							<Price price={price} />
 						</span>
-						<span className="text-xs">
-							(Spread {spreadPercent}
-							%)
+						<span
+							className="whitespace-nowrap text-right"
+							style={{ fontSize: '10px' }}
+						>
+							{`Spread ${spreadPercent}%`}
 						</span>
 					</div>
 

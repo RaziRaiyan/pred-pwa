@@ -14,6 +14,7 @@ import {
 	Link,
 	Navigate,
 } from 'react-router';
+import { useEffect } from 'react';
 
 const App = () => {
 	const router = createBrowserRouter([
@@ -36,7 +37,7 @@ const App = () => {
 						className="flex flex-col h-full"
 						style={{
 							overflowY: 'auto',
-							maxHeight: 'calc(100vh - 125px)',
+							maxHeight: 'calc(var(--vh, 1vh) * 100 - 125px)',
 						}}
 					>
 						<Outlet />
@@ -69,8 +70,28 @@ const App = () => {
 		},
 	]);
 
+	useEffect(() => {
+		// Fix for iOS Safari viewport height
+		const setViewportHeight = () => {
+			const vh = window.innerHeight * 0.01;
+			document.documentElement.style.setProperty('--vh', `${vh}px`);
+		};
+
+		setViewportHeight();
+		window.addEventListener('resize', setViewportHeight);
+		window.addEventListener('orientationchange', setViewportHeight);
+
+		return () => {
+			window.removeEventListener('resize', setViewportHeight);
+			window.removeEventListener('orientationchange', setViewportHeight);
+		};
+	}, []);
+
 	return (
-		<div className="flex flex-col h-full">
+		<div
+			className="flex flex-col h-full md:border-x md:border-gray-200"
+			style={{ height: '100dvh', minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+		>
 			<Header />
 			<RouterProvider router={router} />
 			<Toaster position="bottom-center" />
