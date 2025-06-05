@@ -9,12 +9,14 @@ import { OrderStatus, OrderType, TradeType } from '../types/global.enum';
 import { toast } from 'react-hot-toast';
 import Price from '../components/Price';
 import { marketData } from '../configs/dummy_data';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { defaultState } from '../configs';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { TradeState } from '../types/global.type';
 import { convertToKMB, formatDateTime } from '../utility';
 import Progress from '../components/Progress';
+import OrderBook from '../components/OrderBook';
+import { PAGES } from '../types/pages.enum';
 
 const Trade = () => {
 	const { marketId = 1 } = useParams();
@@ -46,6 +48,8 @@ const Trade = () => {
 			lastMarketSelected: '1',
 		},
 	);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const savedData = getTradeData();
@@ -332,131 +336,145 @@ const Trade = () => {
 				</div>
 			</div>
 
-			<div className="px-4 pb-4 text-xs leading-4">
-				{/* Buy/Sell Toggle */}
-				<Tabs
-					options={[TradeType.BUY_LONG, TradeType.SELL_SHORT]}
-					selected={side}
-					onChange={(option) => setSide(option as TradeType)}
-				/>
-
-				{/* Order Type */}
-				<div className="flex items-center justify-between mb-2">
-					<div className="flex items-center mt-2 gap-1 w-full p-1 border border-gray-200 rounded-lg bg-neutral-500">
-						<InfoIcon color="#1E1E1E" size={20} />
-						<select
-							className="bg-transparent font-medium flex-1"
-							value={orderType}
-							onChange={(e) =>
-								setOrderType(e.target.value as OrderType)
-							}
-						>
-							<option value={OrderType.MARKET}>Market</option>
-							<option value={OrderType.LIMIT}>Limit</option>
-						</select>
-					</div>
-				</div>
-
-				{/* Available Balance */}
-				<div className="flex justify-between mb-2 items-center">
-					<span className="text-sm text-black cursor-pointer font-semibold tracking-wide underline">
-						Available to Trade
-					</span>
-					<span className="font-medium">{convertToKMB(balance)} USDC</span>
-				</div>
-
-				{/* Price Input */}
-				<div className="mb-2">
-					<div className="flex items-center bg-neutral-500 border border-neutral-600 px-3 py-2 h-9 rounded-lg">
-						<span className="text-black/50 font-semibold mr-3 tracking-wide">
-							Price (USD)
-						</span>
-						<input
-							type="number"
-							value={
-								orderType === OrderType.MARKET
-									? currentPrice
-									: orderPrice
-							}
-							onChange={(e) =>
-								setOrderPrice(parseFloat(e.target.value))
-							}
-							disabled={orderType === OrderType.MARKET}
-							className="flex-1 bg-transparent text-right font-medium"
-							step="0.1"
-						/>
-						<span className="ml-2">
-							{orderType === OrderType.MARKET ? 'Mkt' : ''}
-						</span>
-					</div>
-				</div>
-
-				{/* Shares Input */}
-				<div className="mb-2">
-					<div className="flex items-center bg-neutral-500 border border-neutral-600 px-3 py-2 h-9 rounded-lg">
-						<span className="text-black/50 font-semibold mr-3 tracking-wide">
-							Shares
-						</span>
-						<input
-							type="number"
-							value={orderShares}
-							onChange={(e) =>
-								setOrderShares(parseInt(e.target.value) || 0)
-							}
-							className="flex-1 bg-transparent text-right font-medium"
-						/>
-					</div>
-				</div>
-
-				{/* Percentage Slider */}
-				<div className="mb-2">
-					<Slider
-						value={percentage}
-						onChange={(pct: number) => {
-							setPercentage(pct);
-							const maxShares = Math.floor(
-								balance /
-									(orderType === OrderType.MARKET
-										? currentPrice
-										: orderPrice),
-							);
-							setOrderShares(Math.floor((maxShares * pct) / 100));
-						}}
+			<div className="flex">
+				<div className="px-4 pb-4 text-xs leading-4">
+					{/* Buy/Sell Toggle */}
+					<Tabs
+						options={[TradeType.BUY_LONG, TradeType.SELL_SHORT]}
+						selected={side}
+						onChange={(option) => setSide(option as TradeType)}
 					/>
-				</div>
 
-				{/* Order Summary */}
-				<div className="space-y-2 mb-4">
-					<div className="flex justify-between">
-						<span className="text-black font-semibold tracking-wide">
-							Order Total
+					{/* Order Type */}
+					<div className="flex items-center justify-between mb-2">
+						<div className="flex items-center mt-2 gap-1 w-full p-1 border border-gray-200 rounded-lg bg-neutral-500">
+							<InfoIcon color="#1E1E1E" size={20} />
+							<select
+								className="bg-transparent font-medium flex-1"
+								value={orderType}
+								onChange={(e) =>
+									setOrderType(e.target.value as OrderType)
+								}
+							>
+								<option value={OrderType.MARKET}>Market</option>
+								<option value={OrderType.LIMIT}>Limit</option>
+							</select>
+						</div>
+					</div>
+
+					{/* Available Balance */}
+					<div className="flex justify-between mb-2 items-center">
+						<span
+							className="text-sm text-black cursor-pointer font-semibold tracking-wide underline"
+							onClick={() => {
+								navigate(`/${PAGES.WALLET}`);
+							}}
+						>
+							Available to Trade
 						</span>
 						<span className="font-medium">
-							<Price price={orderTotal} />
+							{convertToKMB(balance)} USDC
 						</span>
 					</div>
-					<div className="flex justify-between">
-						<span className="text-black font-semibold tracking-wide">
-							To Win 💵
-						</span>
-						<span className="font-medium">
-							<Price price={potentialWin} />
-						</span>
-					</div>
-				</div>
 
-				{/* Place Order Button */}
-				<button
-					onClick={placeOrder}
-					disabled={orderShares <= 0 || orderTotal > balance}
-					className={`w-full py-2 rounded font-medium text-white ${
-						orderShares > 0 && orderTotal <= balance
-							? 'bg-charcoal-500'
-							: 'bg-muted-500 cursor-not-allowed'
-					}`}
-				>
-					{side === TradeType.BUY_LONG ? 'BUY/LONG' : 'SELL/SHORT'} CSK
-				</button>
+					{/* Price Input */}
+					<div className="mb-2">
+						<div className="flex items-center bg-neutral-500 border border-neutral-600 px-3 py-2 h-9 rounded-lg">
+							<span className="text-black/50 font-semibold mr-3 tracking-wide">
+								Price (USD)
+							</span>
+							<input
+								type="number"
+								value={
+									orderType === OrderType.MARKET
+										? currentPrice
+										: orderPrice
+								}
+								onChange={(e) =>
+									setOrderPrice(parseFloat(e.target.value))
+								}
+								disabled={orderType === OrderType.MARKET}
+								className="flex-1 bg-transparent text-right font-medium"
+								step="0.1"
+							/>
+							<span className="ml-2">
+								{orderType === OrderType.MARKET ? 'Mkt' : ''}
+							</span>
+						</div>
+					</div>
+
+					{/* Shares Input */}
+					<div className="mb-2">
+						<div className="flex items-center bg-neutral-500 border border-neutral-600 px-3 py-2 h-9 rounded-lg">
+							<span className="text-black/50 font-semibold mr-3 tracking-wide">
+								Shares
+							</span>
+							<input
+								type="number"
+								value={orderShares}
+								onChange={(e) =>
+									setOrderShares(parseInt(e.target.value) || 0)
+								}
+								className="flex-1 bg-transparent text-right font-medium"
+							/>
+						</div>
+					</div>
+
+					{/* Percentage Slider */}
+					<div className="mb-2">
+						<Slider
+							value={percentage}
+							onChange={(pct: number) => {
+								setPercentage(pct);
+								const maxShares = Math.floor(
+									balance /
+										(orderType === OrderType.MARKET
+											? currentPrice
+											: orderPrice),
+								);
+								setOrderShares(Math.floor((maxShares * pct) / 100));
+							}}
+						/>
+					</div>
+
+					{/* Order Summary */}
+					<div className="space-y-2 mb-4">
+						<div className="flex justify-between">
+							<span className="text-black font-semibold tracking-wide">
+								Order Total
+							</span>
+							<span className="font-medium">
+								<Price price={orderTotal} />
+							</span>
+						</div>
+						<div className="flex justify-between">
+							<span className="text-black font-semibold tracking-wide">
+								To Win 💵
+							</span>
+							<span className="font-medium">
+								<Price price={potentialWin} />
+							</span>
+						</div>
+					</div>
+
+					{/* Place Order Button */}
+					<button
+						onClick={placeOrder}
+						disabled={orderShares <= 0 || orderTotal > balance}
+						className={`w-full py-2 rounded font-medium text-white ${
+							orderShares > 0 && orderTotal <= balance
+								? 'bg-charcoal-500'
+								: 'bg-muted-500 cursor-not-allowed'
+						}`}
+					>
+						{side === TradeType.BUY_LONG ? 'BUY/LONG' : 'SELL/SHORT'} CSK
+					</button>
+				</div>
+				<OrderBook
+					orderBook={market.orderBook}
+					shareName={market.shortTitle}
+					price={market.price}
+				/>
 			</div>
 
 			{/* Tabs */}
@@ -817,56 +835,6 @@ const Trade = () => {
 							)}
 						</div>
 					)}
-				</div>
-			</div>
-
-			{/* Order Book (Right Side Panel) */}
-			<div className="fixed right-0 top-0 w-64 h-full bg-white border-l overflow-y-auto hidden lg:block">
-				<div className="p-4">
-					<h3 className="font-medium mb-4">Order Book</h3>
-					<div className="space-y-1">
-						<div className="flex justify-between text-xs text-gray-500 mb-2">
-							<span>Price</span>
-							<span>Shares (CSK)</span>
-						</div>
-
-						{/* Asks */}
-						{market?.orderBook.asks
-							.slice()
-							.reverse()
-							.map((ask, idx) => (
-								<div
-									key={idx}
-									className="flex justify-between text-sm text-red-600"
-								>
-									<span>
-										<Price price={ask.price} />
-									</span>
-									<span>{convertToKMB(ask.shares)}</span>
-								</div>
-							))}
-
-						{/* Current Price */}
-						<div className="flex justify-between font-medium py-2 border-y">
-							<span>
-								<Price price={market.price} />
-							</span>
-							<span>(Spread 1%)</span>
-						</div>
-
-						{/* Bids */}
-						{market?.orderBook.bids.map((bid, idx) => (
-							<div
-								key={idx}
-								className="flex justify-between text-sm text-green-600"
-							>
-								<span>
-									<Price price={bid.price} />
-								</span>
-								<span>{convertToKMB(bid.shares)}</span>
-							</div>
-						))}
-					</div>
 				</div>
 			</div>
 		</div>
