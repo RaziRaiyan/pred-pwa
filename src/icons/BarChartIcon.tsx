@@ -13,9 +13,9 @@ const BarChartIcon: React.FC<{ color: string; size?: number }> = ({
 			<path
 				d="M27 30V15M18 30V6M9 30V21"
 				stroke={color}
-				stroke-width="3"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="3"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

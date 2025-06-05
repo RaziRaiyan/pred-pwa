@@ -6,12 +6,19 @@ import Tabs from '../components/Tabs';
 import Slider from '../components/Slider';
 import InfoIcon from '../icons/InfoIcon';
 import { OrderStatus, OrderType, TradeType } from '../types/global.enum';
+import { toast } from 'react-hot-toast';
+import Price from '../components/Price';
+import { marketData } from '../configs/dummy_data';
+import { useParams } from 'react-router-dom';
 
 const Trade = () => {
-	const [currentPrice, setCurrentPrice] = useState(0.34);
+	const { marketId = 1 } = useParams();
+	const market = marketData.find((m) => m.id == Number(marketId));
+
+	const [currentPrice, setCurrentPrice] = useState(market?.price ?? 0);
 	const [orderType, setOrderType] = useState<OrderType>(OrderType.MARKET);
 	const [side, setSide] = useState<TradeType>(TradeType.BUY_LONG);
-	const [orderPrice, setOrderPrice] = useState(0.34);
+	const [orderPrice, setOrderPrice] = useState(market?.price ?? 0);
 	const [orderShares, setOrderShares] = useState(0);
 	const [percentage, setPercentage] = useState(0);
 	const [balance, setBalance] = useState(100);
@@ -24,46 +31,35 @@ const Trade = () => {
 	const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
 
 	// Price simulation
-	const [priceHistory, setPriceHistory] = useState<number[]>([0.34]);
-	const [orderBook, setOrderBook] = useState({
-		bids: [
-			{ price: 0.34, shares: 14984 },
-			{ price: 0.335, shares: 14984 },
-			{ price: 0.334, shares: 14984 },
-			{ price: 0.33, shares: 14984 },
-			{ price: 0.32, shares: 14984 },
-		],
-		asks: [
-			{ price: 0.34, shares: 14984 },
-			{ price: 0.335, shares: 14984 },
-			{ price: 0.334, shares: 14984 },
-			{ price: 0.33, shares: 14984 },
-			{ price: 0.32, shares: 14984 },
-			{ price: 0.31, shares: 14984 },
-		],
-	});
 
 	// Load data from memory on component mount
 	useEffect(() => {
-		const savedData = {
-			balance: 100,
-			openOrders: [],
-			positions: [],
-			tradeHistory: [],
-			hideOtherPairs: false,
-		};
+		const savedData = localStorage.getItem('trade');
+		if (savedData) {
+			setBalance(JSON.parse(savedData).balance);
+			setOpenOrders(JSON.parse(savedData).openOrders);
+			setPositions(JSON.parse(savedData).positions);
+			setTradeHistory(JSON.parse(savedData).tradeHistory);
+			setHideOtherPairs(JSON.parse(savedData).hideOtherPairs);
+		}
 
-		setBalance(savedData.balance);
-		setOpenOrders(savedData.openOrders);
-		setPositions(savedData.positions);
-		setTradeHistory(savedData.tradeHistory);
-		setHideOtherPairs(savedData.hideOtherPairs);
+		localStorage.setItem('lastMarketSelected', marketId as string);
 	}, []);
 
 	// Save data to memory whenever state changes
 	const saveData = useCallback(() => {
 		// In a real app, this would use localStorage
 		// For this demo, we'll just keep state in memory
+		localStorage.setItem(
+			'trade',
+			JSON.stringify({
+				balance,
+				openOrders,
+				positions,
+				tradeHistory,
+				hideOtherPairs,
+			}),
+		);
 	}, [balance, openOrders, positions, tradeHistory, hideOtherPairs]);
 
 	useEffect(() => {
@@ -76,7 +72,6 @@ const Trade = () => {
 			setCurrentPrice((prev) => {
 				const change = (Math.random() - 0.5) * 0.2;
 				const newPrice = Math.max(0.25, Math.min(0.45, prev + change));
-				setPriceHistory((hist) => [...hist.slice(-20), newPrice]);
 				return Math.round(newPrice * 100) / 100;
 			});
 		}, 2000);
@@ -107,7 +102,9 @@ const Trade = () => {
 				orderType === OrderType.MARKET
 					? OrderStatus.FILLED
 					: OrderStatus.OPEN,
-			market: 'IPL Winner',
+			marketId: market?.id ?? 0,
+			marketShortTitle: market?.shortTitle ?? '',
+			marketEventTitle: market?.eventTitle ?? '',
 		};
 
 		if (orderType === OrderType.MARKET) {
@@ -121,7 +118,9 @@ const Trade = () => {
 				currentPrice: currentPrice,
 				pnl: 0,
 				pnlPercent: 0,
-				market: 'IPL Winner',
+				marketId: market?.id ?? 0,
+				marketShortTitle: market?.shortTitle ?? '',
+				marketEventTitle: market?.eventTitle ?? '',
 			};
 
 			const newTrade: Trade = {
@@ -134,7 +133,9 @@ const Trade = () => {
 				status: OrderStatus.FILLED,
 				pnl: 0,
 				type: orderType,
-				market: 'IPL Winner',
+				marketId: market?.id ?? 0,
+				marketShortTitle: market?.shortTitle ?? '',
+				marketEventTitle: market?.eventTitle ?? '',
 			};
 
 			setPositions((prev) => [...prev, newPosition]);
@@ -157,6 +158,9 @@ const Trade = () => {
 	// Cancel order
 	const cancelOrder = (orderId: string) => {
 		setOpenOrders((prev) => prev.filter((order) => order.id !== orderId));
+		toast.success('Order cancelled successfully', {
+			duration: 2000,
+		});
 	};
 
 	// Close position
@@ -185,11 +189,17 @@ const Trade = () => {
 			price: closePrice,
 			timestamp: new Date(),
 			status: OrderStatus.FILLED,
-			market: position.market,
 			pnl: pnl,
+			marketId: market?.id ?? 0,
+			marketShortTitle: market?.shortTitle ?? '',
+			marketEventTitle: market?.eventTitle ?? '',
 		};
 
 		setTradeHistory((prev) => [...prev, closeOrder]);
+
+		toast.success('Position closed successfully', {
+			duration: 2000,
+		});
 	};
 
 	// Update positions with current prices
@@ -214,32 +224,32 @@ const Trade = () => {
 		);
 	}, [currentPrice]);
 
+	if (!market) return <div>Market not found</div>;
+
 	return (
 		<div className="overflow-auto">
-			<div className="flex flex-col gap-4 p-4">
-				<div className="flex gap-2 items-center">
-					<img
-						src="/logos/csk_logo.png"
-						alt="logo"
-						className="w-12 h-12"
-					/>
-					<div>
+			<div className="flex gap-2 items-center p-4">
+				<div className="flex items-center h-12 w-12">
+					<img src={market.logo} alt="logo" className="h-12" />
+				</div>
+				<div>
+					<p className="text-lg font-bold text-black leading-6">
+						{market.title}
+					</p>
+					<p className="text-xs text-muted-500">
+						${market.price.toLocaleString()}
+					</p>
+				</div>
+
+				<div className="ml-auto flex items-center gap-2">
+					<div className="flex flex-col items-end">
 						<p className="text-lg font-bold text-black leading-6">
-							Chennai Super Kings
+							<Price price={currentPrice} />
 						</p>
-						<p className="text-xs text-muted-500">$65.20M</p>
+						<p className="text-xs text-brand-green-500">+0.84%</p>
 					</div>
 
-					<div className="ml-auto flex items-center gap-2">
-						<div className="flex flex-col items-end">
-							<p className="text-lg font-bold text-black leading-6">
-								<Price price={currentPrice} />
-							</p>
-							<p className="text-xs text-brand-green-500">+0.84%</p>
-						</div>
-
-						<BarChartIcon color="#1E1E1E" size={36} />
-					</div>
+					<BarChartIcon color="#1E1E1E" size={36} />
 				</div>
 			</div>
 
@@ -390,8 +400,6 @@ const Trade = () => {
 					))}
 				</div>
 
-				{/* Hide Other Pairs */}
-
 				{/* Tab Content */}
 				<div className="">
 					{activeTab === 'OPEN ORDERS' && (
@@ -414,7 +422,7 @@ const Trade = () => {
 												}
 												className="w-4 h-4"
 											/>
-											<span className="text-sm">
+											<span className="text-xs font-medium text-muted-500">
 												Hide Other Pairs
 											</span>
 										</label>
@@ -423,56 +431,63 @@ const Trade = () => {
 										</button>
 									</div>
 
-									{openOrders.map((order: Order) => (
-										<div
-											key={order.id}
-											className="border-t border-neutral-500 p-4"
-										>
-											<div className="flex justify-between items-start mb-2">
-												<div>
-													<div className="font-medium">
-														{order.symbol}/{' '}
-														{order.market}
-													</div>
-													<div className="text-sm text-gray-500">
-														<span className="text-brand-green-600">
-															{order.type ==
-															OrderType.MARKET
-																? 'Mkt'
-																: 'Limit'}
-															{'/'}
-															{order.side ==
-															TradeType.BUY_LONG
-																? 'Buy'
-																: 'Sell'}{' '}
-														</span>
+									{openOrders
+										.filter((order) =>
+											hideOtherPairs
+												? order.marketId === market?.id
+												: true,
+										)
+										.map((order: Order) => (
+											<div
+												key={order.id}
+												className="border-t border-neutral-500 p-4"
+											>
+												<div className="flex justify-between items-start mb-2">
+													<div>
+														<div className="font-medium">
+															{order.marketShortTitle}{' '}
+															/{' '}
+															{order.marketEventTitle}
+														</div>
+														<div className="text-sm text-gray-500">
+															<span className="text-brand-green-600">
+																{order.type ==
+																OrderType.MARKET
+																	? 'Mkt'
+																	: 'Limit'}
+																{'/'}
+																{order.side ==
+																TradeType.BUY_LONG
+																	? 'Buy'
+																	: 'Sell'}{' '}
+															</span>
 
-														{order.timestamp.toLocaleString()}
+															{order.timestamp.toLocaleString()}
+														</div>
+													</div>
+													<button
+														onClick={() =>
+															cancelOrder(order.id)
+														}
+														className="text-sm bg-gray-100 px-2 py-1 rounded"
+													>
+														Cancel
+													</button>
+												</div>
+												<div className="text-sm space-y-1">
+													<div className="flex items-center justify-between w-full">
+														<span>Amount</span>{' '}
+														<span>
+															{order.shares} shares
+														</span>
+													</div>
+													<div>
+														Price:{' '}
+														<Price price={order.price} />
 													</div>
 												</div>
-												<button
-													onClick={() =>
-														cancelOrder(order.id)
-													}
-													className="text-sm bg-gray-100 px-2 py-1 rounded"
-												>
-													Cancel
-												</button>
 											</div>
-											<div className="text-sm space-y-1">
-												<div className="flex items-center justify-between w-full">
-													<span>Amount</span>{' '}
-													<span>
-														{order.shares} shares
-													</span>
-												</div>
-												<div>
-													Price:{' '}
-													<Price price={order.price} />
-												</div>
-											</div>
-										</div>
-									))}
+										))}
 								</div>
 							)}
 						</div>
@@ -498,7 +513,7 @@ const Trade = () => {
 												}
 												className="w-4 h-4"
 											/>
-											<span className="text-sm">
+											<span className="text-xs font-medium text-muted-500">
 												Hide Other Pairs
 											</span>
 										</label>
@@ -506,62 +521,84 @@ const Trade = () => {
 											Close All
 										</button>
 									</div>
-									{positions.map((position: Position) => (
-										<div
-											key={position.id}
-											className="border-t border-neutral-500 p-4"
-										>
-											<div className="flex justify-between items-start mb-2">
-												<div>
-													<div className="font-medium">
-														{position.symbol} /{' '}
-														{position.market}
+									{positions
+										.filter((position) =>
+											hideOtherPairs
+												? position.marketId === market?.id
+												: true,
+										)
+										.map((position: Position) => (
+											<div
+												key={position.id}
+												className="border-t border-neutral-500 p-4"
+											>
+												<div className="flex justify-between items-start mb-2">
+													<div>
+														<div className="font-medium">
+															{
+																position.marketShortTitle
+															}{' '}
+															/{' '}
+															{
+																position.marketEventTitle
+															}
+														</div>
+														<div className="text-sm text-gray-500">
+															{position.side ==
+															TradeType.BUY_LONG
+																? 'Buy'
+																: 'Sell'}{' '}
+															{position.shares} shares
+														</div>
 													</div>
-													<div className="text-sm text-gray-500">
-														{position.side ==
-														TradeType.BUY_LONG
-															? 'Buy'
-															: 'Sell'}{' '}
-														{position.shares} shares
+													<button
+														onClick={() =>
+															closePosition(
+																position.id,
+															)
+														}
+														className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded"
+													>
+														Close
+													</button>
+												</div>
+												<div className="text-sm space-y-1">
+													<div>
+														Entry:{' '}
+														<Price
+															price={
+																position.entryPrice
+															}
+														/>
+													</div>
+													<div>
+														Current:{' '}
+														<Price
+															price={
+																position.currentPrice
+															}
+														/>
+													</div>
+													<div
+														className={`font-medium ${
+															position.pnl >= 0
+																? 'text-green-600'
+																: 'text-red-600'
+														}`}
+													>
+														P&L:{' '}
+														<Price
+															price={position.pnl}
+														/>{' '}
+														(
+														{position.pnlPercent.toFixed(
+															2,
+														)}
+														%)
 													</div>
 												</div>
-												<button
-													onClick={() =>
-														closePosition(position.id)
-													}
-													className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded"
-												>
-													Close
-												</button>
 											</div>
-											<div className="text-sm space-y-1">
-												<div>
-													Entry:{' '}
-													<Price
-														price={position.entryPrice}
-													/>
-												</div>
-												<div>
-													Current:{' '}
-													<Price
-														price={position.currentPrice}
-													/>
-												</div>
-												<div
-													className={`font-medium ${
-														position.pnl >= 0
-															? 'text-green-600'
-															: 'text-red-600'
-													}`}
-												>
-													P&L:{' '}
-													<Price price={position.pnl} /> (
-													{position.pnlPercent.toFixed(2)}
-													%)
-												</div>
-											</div>
-										</div>
-									))}
+										))}
 								</div>
 							)}
 						</div>
@@ -587,12 +624,17 @@ const Trade = () => {
 												}
 												className="w-4 h-4"
 											/>
-											<span className="text-sm">
+											<span className="text-xs font-medium text-muted-500">
 												Hide Other Pairs
 											</span>
 										</label>
 									</div>
 									{tradeHistory
+										.filter((trade) =>
+											hideOtherPairs
+												? trade.marketId === market?.id
+												: true,
+										)
 										.slice()
 										.reverse()
 										.map((trade: Trade) => (
@@ -603,11 +645,16 @@ const Trade = () => {
 												<div className="flex justify-between items-start mb-2">
 													<div>
 														<div className="font-medium">
-															{trade.symbol} /{' '}
-															{trade.market}
+															{trade.marketShortTitle}{' '}
+															/{' '}
+															{trade.marketEventTitle}
 														</div>
 														<div className="text-sm text-gray-500">
-															{trade.type} /{' '}
+															{trade.type ===
+															OrderType.MARKET
+																? 'Mkt'
+																: 'Limit'}
+															{'/'}
 															{trade.side ==
 															TradeType.BUY_LONG
 																? 'Buy'
@@ -672,7 +719,7 @@ const Trade = () => {
 						</div>
 
 						{/* Asks */}
-						{orderBook.asks
+						{market?.orderBook.asks
 							.slice()
 							.reverse()
 							.map((ask, idx) => (
@@ -690,13 +737,13 @@ const Trade = () => {
 						{/* Current Price */}
 						<div className="flex justify-between font-medium py-2 border-y">
 							<span>
-								<Price price={currentPrice} />
+								<Price price={market.price} />
 							</span>
 							<span>(Spread 1%)</span>
 						</div>
 
 						{/* Bids */}
-						{orderBook.bids.map((bid, idx) => (
+						{market?.orderBook.bids.map((bid, idx) => (
 							<div
 								key={idx}
 								className="flex justify-between text-sm text-green-600"
@@ -715,11 +762,3 @@ const Trade = () => {
 };
 
 export default Trade;
-
-const Price = ({ price }: { price: number }) => {
-	if (Math.abs(price) < 1) {
-		return <span>{(price * 100).toFixed(0)}¢</span>;
-	} else {
-		return <span>${price.toFixed(2)}</span>;
-	}
-};

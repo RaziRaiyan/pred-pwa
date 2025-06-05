@@ -1,0 +1,128 @@
+import type { Market } from '../types/global.type';
+
+export const marketData: Market[] = [
+	{
+		id: 1,
+		title: 'Chennai Super Kings',
+		shortTitle: 'CSK',
+		logo: '/logos/csk_logo.png',
+		volume: 65200000,
+		price: 0.34,
+		change: 0.84,
+		eventTitle: 'IPL Winner',
+		eventStartDate: '2025-03-31',
+		eventEndDate: '2025-06-05',
+		orderBook: {
+			bids: [
+				{ price: 0.34, shares: 14984 },
+				{ price: 0.335, shares: 14984 },
+				{ price: 0.33, shares: 14984 },
+				{ price: 0.32, shares: 14984 },
+				{ price: 0.31, shares: 14984 },
+			],
+			asks: [
+				{ price: 0.345, shares: 14984 },
+				{ price: 0.35, shares: 14984 },
+				{ price: 0.355, shares: 14984 },
+				{ price: 0.36, shares: 14984 },
+				{ price: 0.365, shares: 14984 },
+			],
+		},
+	},
+	{
+		id: 2,
+		title: 'Royal Challengers Bangalore',
+		shortTitle: 'RCB',
+		logo: '/logos/rcb_logo.png',
+		volume: 772200,
+		price: 0.38,
+		change: 2.7,
+		eventTitle: 'IPL Winner',
+		eventStartDate: '2025-03-31',
+		eventEndDate: '2025-06-05',
+		orderBook: {
+			bids: [
+				{ price: 0.37, shares: 12000 },
+				{ price: 0.365, shares: 11800 },
+				{ price: 0.36, shares: 11500 },
+			],
+			asks: [
+				{ price: 0.38, shares: 12200 },
+				{ price: 0.385, shares: 12400 },
+				{ price: 0.39, shares: 13000 },
+			],
+		},
+	},
+	{
+		id: 3,
+		title: 'Sunrisers Hyderabad',
+		shortTitle: 'SRH',
+		logo: '/logos/srh_logo.png',
+		volume: 490500,
+		price: 0.31,
+		change: -0.32,
+		eventTitle: 'IPL Winner',
+		eventStartDate: '2025-03-31',
+		eventEndDate: '2025-06-05',
+		orderBook: {
+			bids: [
+				{ price: 0.3, shares: 14000 },
+				{ price: 0.295, shares: 13800 },
+				{ price: 0.29, shares: 13500 },
+			],
+			asks: [
+				{ price: 0.31, shares: 14200 },
+				{ price: 0.315, shares: 14500 },
+				{ price: 0.32, shares: 14700 },
+			],
+		},
+	},
+	{
+		id: 4,
+		title: 'Kolkata Knight Riders',
+		shortTitle: 'KKR',
+		logo: '/logos/kkr_logo.png',
+		volume: 705000,
+		price: 0.39,
+		change: 2.63,
+		eventTitle: 'IPL Winner',
+		eventStartDate: '2025-03-31',
+		eventEndDate: '2025-06-05',
+		orderBook: {
+			bids: [
+				{ price: 0.385, shares: 13000 },
+				{ price: 0.38, shares: 12700 },
+				{ price: 0.375, shares: 12500 },
+			],
+			asks: [
+				{ price: 0.395, shares: 13500 },
+				{ price: 0.4, shares: 14000 },
+				{ price: 0.405, shares: 14500 },
+			],
+		},
+	},
+	{
+		id: 5,
+		title: 'Rajasthan Royals',
+		shortTitle: 'RR',
+		logo: '/logos/rr_logo.png',
+		volume: 556400,
+		price: 0.356,
+		change: -0.28,
+		eventTitle: 'IPL Winner',
+		eventStartDate: '2025-03-31',
+		eventEndDate: '2025-06-05',
+		orderBook: {
+			bids: [
+				{ price: 0.35, shares: 11500 },
+				{ price: 0.345, shares: 11300 },
+				{ price: 0.34, shares: 11000 },
+			],
+			asks: [
+				{ price: 0.36, shares: 11800 },
+				{ price: 0.365, shares: 12000 },
+				{ price: 0.37, shares: 12200 },
+			],
+		},
+	},
+];

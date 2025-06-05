@@ -23,3 +23,10 @@ export const BOTTOM_NAV_ITEMS: BottomNavType = [
 		icon: '/icons/menu_icon.svg',
 	},
 ];
+
+export const defaultState = {
+	balance: 100,
+	positions: [],
+	openOrders: [],
+	tradeHistory: [],
+};

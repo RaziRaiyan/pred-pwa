@@ -5,6 +5,7 @@ import WalletIcon from '../icons/WalletIcon';
 import MenuIcon from '../icons/MenuIcon';
 import { PAGES } from '../types/pages.enum';
 import { clsx } from 'clsx';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const PageIconMap: Record<PAGES, React.FC<{ color: string; size?: number }>> = {
 	[PAGES.MARKETS]: MarketIcon,
@@ -13,19 +14,31 @@ const PageIconMap: Record<PAGES, React.FC<{ color: string; size?: number }>> = {
 	[PAGES.MENU]: MenuIcon,
 };
 
-const BottomNav = ({
-	selected,
-	setSelected,
-}: {
-	selected: string;
-	setSelected: (selected: string) => void;
-}) => {
+const BottomNav = () => {
+	const navigate = useNavigate();
+	const { pathname } = useLocation();
+
+	const selected = pathname.split('/')[1] as PAGES;
+
+	const handleNavClick = (page: PAGES) => {
+		if (page === PAGES.TRADES) {
+			const lastMarketSelected = localStorage.getItem('lastMarketSelected');
+			if (lastMarketSelected) {
+				navigate(`/trades/${lastMarketSelected}`);
+			}
+		} else {
+			navigate(page);
+		}
+	};
+
 	return (
 		<div className="flex justify-between items-center border-t border-gray-200">
 			{BOTTOM_NAV_ITEMS.map((item) => (
 				<div
 					className="flex flex-col items-center cursor-pointer p-4 flex-1"
-					onClick={() => setSelected(item.id)}
+					onClick={() => {
+						handleNavClick(item.id);
+					}}
 					key={item.id}
 				>
 					<NavIcon page={item.id} selected={selected === item.id} />
