@@ -1,4 +1,4 @@
-# 🏏 PRED-PWA — IPL Prediction Market (Progressive Web App)
+# 🏏 PRED-PWA — Sports Prediction Market (Progressive Web App)
 
 **PRED-PWA** is a mobile-first, React + TypeScript PWA that simulates a real-time prediction market for IPL teams. It allows users to "trade belief" in their favorite teams by placing limit and market orders, viewing live order books, and tracking positions — all powered by mock data.
 
