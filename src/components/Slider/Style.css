@@ -3,7 +3,6 @@
 /* ───────── WEBKIT (Chrome, Safari, Edge Chromium) ───────── */
 input[type='range'] {
 	-webkit-appearance: none;
-	margin: 10px 0;
 	width: 100%;
 }
 

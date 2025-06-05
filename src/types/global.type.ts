@@ -19,8 +19,9 @@ export type Order = {
 	symbol: string;
 	side: TradeType;
 	shares: number;
+	filledShares: number;
 	price: number;
-	timestamp: Date;
+	timestamp: string;
 	type: OrderType;
 	status: OrderStatus;
 	marketId: number;
@@ -35,7 +36,7 @@ export type Trade = {
 	side: TradeType;
 	shares: number;
 	price: number;
-	timestamp: Date;
+	timestamp: string;
 	status: OrderStatus;
 	pnl: number;
 	marketId: number;

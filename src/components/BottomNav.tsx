@@ -44,7 +44,7 @@ const BottomNav = () => {
 		<div className="flex justify-between items-center border-t border-gray-200">
 			{BOTTOM_NAV_ITEMS.map((item) => (
 				<div
-					className="flex flex-col items-center cursor-pointer p-4 flex-1"
+					className="flex flex-col items-center cursor-pointer px-4 py-3 flex-1"
 					onClick={() => {
 						handleNavClick(item.id);
 					}}

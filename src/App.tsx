@@ -7,7 +7,13 @@ import Wallet from './pages/Wallet';
 import Menu from './pages/Menu';
 
 import { Toaster } from 'react-hot-toast';
-import { createBrowserRouter, Outlet, RouterProvider, Link } from 'react-router';
+import {
+	createBrowserRouter,
+	Outlet,
+	RouterProvider,
+	Link,
+	Navigate,
+} from 'react-router';
 
 const App = () => {
 	const router = createBrowserRouter([
@@ -30,7 +36,7 @@ const App = () => {
 						className="flex flex-col h-full"
 						style={{
 							overflowY: 'auto',
-							maxHeight: 'calc(100vh - 135px)',
+							maxHeight: 'calc(100vh - 125px)',
 						}}
 					>
 						<Outlet />
@@ -39,6 +45,10 @@ const App = () => {
 				</>
 			),
 			children: [
+				{
+					path: '/',
+					element: <Navigate to="/markets" replace />,
+				},
 				{
 					path: '/markets',
 					element: <Markets />,

@@ -35,7 +35,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
 				value={value}
 				onChange={handleChange}
 				className="flex-1 slider"
-				style={{ height: '2px' }}
+				style={{ height: '32px' }}
 				ref={ref}
 			/>
 

@@ -13,6 +13,8 @@ import { useParams } from 'react-router-dom';
 import { defaultState } from '../configs';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { TradeState } from '../types/global.type';
+import { convertToKMB, formatDateTime } from '../utility';
+import Progress from '../components/Progress';
 
 const Trade = () => {
 	const { marketId = 1 } = useParams();
@@ -102,9 +104,10 @@ const Trade = () => {
 			type: orderType,
 			side: side,
 			symbol: 'CSK',
+			filledShares: 0,
 			shares: orderShares,
 			price: orderType === OrderType.MARKET ? currentPrice : orderPrice,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			status:
 				orderType === OrderType.MARKET
 					? OrderStatus.FILLED
@@ -136,7 +139,7 @@ const Trade = () => {
 				side: side,
 				shares: orderShares,
 				price: currentPrice,
-				timestamp: new Date(),
+				timestamp: new Date().toISOString(),
 				status: OrderStatus.FILLED,
 				pnl: 0,
 				type: orderType,
@@ -153,6 +156,18 @@ const Trade = () => {
 			);
 		} else {
 			// Add to open orders
+			const allOpenOrdersAmount = openOrders.reduce(
+				(acc, order) => acc + order.price * order.shares,
+				0,
+			);
+
+			if (allOpenOrdersAmount + orderTotal > balance) {
+				toast.error('Insufficient balance', {
+					duration: 2000,
+				});
+				return;
+			}
+
 			setOpenOrders((prev) => [...prev, newOrder]);
 		}
 
@@ -194,7 +209,7 @@ const Trade = () => {
 			symbol: position.symbol,
 			shares: position.shares,
 			price: closePrice,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			status: OrderStatus.FILLED,
 			pnl: pnl,
 			marketId: market?.id ?? 0,
@@ -208,6 +223,63 @@ const Trade = () => {
 			duration: 2000,
 		});
 	};
+
+	useEffect(() => {
+		// simulate periodic open order fill
+		const interval = setInterval(() => {
+			const openOrdersAndPositions: {
+				order: Order;
+				position: Position | null;
+			}[] = openOrders.map((order: Order) => {
+				if (order.status === OrderStatus.OPEN) {
+					const filledShares = Math.min(
+						order.shares,
+						order.filledShares + Math.floor(order.shares * 0.2),
+					);
+
+					return {
+						order: {
+							...order,
+							filledShares,
+							status:
+								filledShares >= order.shares
+									? OrderStatus.FILLED
+									: OrderStatus.OPEN,
+						},
+						position: {
+							id: Date.now().toString(),
+							symbol: order.symbol,
+							side: order.side,
+							shares: filledShares - order.filledShares, // shares which are now positioned
+							entryPrice: order.price,
+							currentPrice: order.price,
+							pnl: 0,
+							pnlPercent: 0,
+							marketId: market?.id ?? 0,
+							marketShortTitle: market?.shortTitle ?? '',
+							marketEventTitle: market?.eventTitle ?? '',
+						},
+					};
+				}
+				return { order, position: null };
+			});
+
+			// filled orders should be removed from open orders
+			// newly filled orders should be added to positions
+			const openOrdersNew: Order[] = openOrdersAndPositions
+				.filter((order) => order.order.status !== OrderStatus.FILLED)
+				.map((order) => order.order);
+
+			const positionsNew: Position[] = openOrdersAndPositions
+				.filter((order) => order.position)
+				.map((order) => order.position as Position);
+
+			setOpenOrders(openOrdersNew);
+			setPositions((prev) => [...prev, ...positionsNew]);
+		}, 5000);
+
+		return () => clearInterval(interval);
+	}, [openOrders]);
 
 	// Update positions with current prices
 	useEffect(() => {
@@ -244,7 +316,7 @@ const Trade = () => {
 						{market.title}
 					</p>
 					<p className="text-xs text-muted-500">
-						${market.price.toLocaleString()}
+						{formatDateTime(market.eventStartDate)}
 					</p>
 				</div>
 
@@ -290,9 +362,7 @@ const Trade = () => {
 					<span className="text-sm text-black cursor-pointer font-semibold tracking-wide underline">
 						Available to Trade
 					</span>
-					<span className="font-medium">
-						{balance.toLocaleString()} USDC
-					</span>
+					<span className="font-medium">{convertToKMB(balance)} USDC</span>
 				</div>
 
 				{/* Price Input */}
@@ -444,6 +514,8 @@ const Trade = () => {
 												? order.marketId === market?.id
 												: true,
 										)
+										.slice()
+										.reverse()
 										.map((order: Order) => (
 											<div
 												key={order.id}
@@ -469,27 +541,51 @@ const Trade = () => {
 																	: 'Sell'}{' '}
 															</span>
 
-															{order.timestamp.toLocaleString()}
+															{formatDateTime(
+																order.timestamp,
+															)}
 														</div>
 													</div>
-													<button
-														onClick={() =>
-															cancelOrder(order.id)
-														}
-														className="text-sm bg-gray-100 px-2 py-1 rounded"
-													>
-														Cancel
-													</button>
+
+													<div className="flex items-center gap-4">
+														<div className="flex flex-col items-center justify-center w-[60px]">
+															<p className="text-xs font-medium text-black">
+																{Math.floor(
+																	(order.filledShares /
+																		order.shares) *
+																		100,
+																)}
+																%
+															</p>
+															<Progress
+																progress={Math.floor(
+																	(order.filledShares /
+																		order.shares) *
+																		100,
+																)}
+															/>
+														</div>
+
+														<button
+															onClick={() =>
+																cancelOrder(order.id)
+															}
+															className="text-sm bg-gray-100 px-2 py-1 rounded"
+														>
+															Cancel
+														</button>
+													</div>
 												</div>
 												<div className="text-sm space-y-1">
 													<div className="flex items-center justify-between w-full">
-														<span>Amount</span>{' '}
+														<span>Filled / Amount</span>{' '}
 														<span>
+															{order.filledShares} /{' '}
 															{order.shares} shares
 														</span>
 													</div>
-													<div>
-														Price:{' '}
+													<div className="flex items-center justify-between w-full">
+														<span>Price</span>
 														<Price price={order.price} />
 													</div>
 												</div>
@@ -534,6 +630,8 @@ const Trade = () => {
 												? position.marketId === market?.id
 												: true,
 										)
+										.slice()
+										.reverse()
 										.map((position: Position) => (
 											<div
 												key={position.id}
@@ -666,7 +764,9 @@ const Trade = () => {
 															TradeType.BUY_LONG
 																? 'Buy'
 																: 'Sell'}{' '}
-															{trade.timestamp.toLocaleString()}
+															{formatDateTime(
+																trade.timestamp,
+															)}
 														</div>
 													</div>
 													<span
@@ -737,7 +837,7 @@ const Trade = () => {
 									<span>
 										<Price price={ask.price} />
 									</span>
-									<span>{ask.shares.toLocaleString()}</span>
+									<span>{convertToKMB(ask.shares)}</span>
 								</div>
 							))}
 
@@ -758,7 +858,7 @@ const Trade = () => {
 								<span>
 									<Price price={bid.price} />
 								</span>
-								<span>{bid.shares.toLocaleString()}</span>
+								<span>{convertToKMB(bid.shares)}</span>
 							</div>
 						))}
 					</div>

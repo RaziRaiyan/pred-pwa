@@ -2,15 +2,15 @@ import type { OrderBook } from '../types/global.type';
 
 export const convertToKMB = (num: number) => {
 	if (num < 1000) {
-		return num;
+		return num.toFixed(4);
 	}
 	if (num < 1000000) {
-		return `${(num / 1000).toFixed(1)}K`;
+		return `${(num / 1000).toFixed(2)}K`;
 	}
 	if (num < 1000000000) {
-		return `${(num / 1000000).toFixed(1)}M`;
+		return `${(num / 1000000).toFixed(2)}M`;
 	}
-	return `${(num / 1000000000).toFixed(1)}B`;
+	return `${(num / 1000000000).toFixed(2)}B`;
 };
 
 export const formatPrice = (price: number) => {
@@ -33,4 +33,20 @@ export const calculateSpreadPercent = (orderBook: OrderBook) => {
 	const spreadPercent = (spread / bestAsk) * 100;
 
 	return spreadPercent.toFixed(2); // e.g., "1.45"
+};
+
+export const formatDateTime = (date: string) => {
+	const pad = (n: number) => n.toString().padStart(2, '0');
+
+	const dateObj = new Date(date);
+
+	const year = dateObj.getFullYear();
+	const month = pad(dateObj.getMonth() + 1); // months are 0-based
+	const day = pad(dateObj.getDate());
+
+	const hours = pad(dateObj.getHours());
+	const minutes = pad(dateObj.getMinutes());
+	const seconds = pad(dateObj.getSeconds());
+
+	return `${year}-${month}-${day}  ${hours}:${minutes}:${seconds}`;
 };
