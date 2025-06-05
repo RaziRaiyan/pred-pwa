@@ -1,0 +1,21 @@
+const MarketIcon: React.FC<{ color: string; size?: number }> = ({
+	color,
+	size = 24,
+}) => {
+	return (
+		<svg
+			width={size}
+			height={size}
+			viewBox="0 0 24 25"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M12 21L5.8 15L3 17V14.55L6 12.4L12.125 18.35L16.3 15H21V17H17L12 21ZM12 12L7.625 7.625L3 11V8.525L7.825 5L12.2 9.375L21 3V5.475L12 12Z"
+				fill={color}
+			/>
+		</svg>
+	);
+};
+
+export default MarketIcon;
