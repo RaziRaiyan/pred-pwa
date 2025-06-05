@@ -9,15 +9,21 @@ import Menu from './pages/Menu';
 import { PAGES } from './types/pages.enum';
 
 const App = () => {
-	const [currentPage, setCurrentPage] = useState<PAGES>(PAGES.MARKETS);
+	const [currentPage, setCurrentPage] = useState<PAGES>(PAGES.TRADES);
 
 	return (
 		<div className="flex flex-col h-full">
 			<Header />
-			<div className="flex flex-col h-full">
+			<div
+				className="flex flex-col h-full"
+				style={{
+					overflowY: 'auto',
+					maxHeight: 'calc(100vh - 135px)',
+				}}
+			>
 				{currentPage === PAGES.MARKETS && <Markets />}
 				{currentPage === PAGES.TRADES && <Trade />}
-				{currentPage === PAGES.ASSETS && <Assets />}
+				{currentPage === PAGES.WALLET && <Assets />}
 				{currentPage === PAGES.MENU && <Menu />}
 			</div>
 			<BottomNav

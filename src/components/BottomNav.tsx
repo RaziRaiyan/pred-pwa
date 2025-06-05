@@ -9,7 +9,7 @@ import { clsx } from 'clsx';
 const PageIconMap: Record<PAGES, React.FC<{ color: string; size?: number }>> = {
 	[PAGES.MARKETS]: MarketIcon,
 	[PAGES.TRADES]: TradeIcon,
-	[PAGES.ASSETS]: WalletIcon,
+	[PAGES.WALLET]: WalletIcon,
 	[PAGES.MENU]: MenuIcon,
 };
 

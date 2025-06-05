@@ -1,0 +1,79 @@
+/* Slider.css */
+
+/* ───────── WEBKIT (Chrome, Safari, Edge Chromium) ───────── */
+input[type='range'] {
+	-webkit-appearance: none;
+	margin: 10px 0;
+	width: 100%;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+}
+
+/* 2) Give the thumb a size, color, and shape */
+.slider::-webkit-slider-thumb {
+	width: 10px;
+	height: 10px;
+	background-color: #404040;
+	border-radius: 50%;
+	cursor: pointer;
+	margin-top: -4px;
+	-webkit-appearance: none;
+	box-shadow: 0 0 0 4px #d9d9d9;
+}
+
+.input[type='range']::-webkit-slider-thumb {
+	background-color: #404040;
+}
+
+/* 3) Optional: style the track itself */
+.slider::-webkit-slider-runnable-track {
+	height: 2px;
+	background: var(--slider-gradient);
+	border-radius: 2px;
+}
+
+/* ───────── MOZILLA (Firefox) ───────── */
+
+.slider::-moz-range-thumb {
+	width: 16px;
+	height: 16px;
+	background: #404040;
+	border: 2px solid #d9d9d9;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.slider::-moz-range-track {
+	height: 4px;
+	border-radius: 2px;
+	background: var(--slider-gradient);
+}
+
+/* ───────── IE/EDGE LEGACY ───────── */
+
+/* .slider::-ms-thumb {
+	width: 16px;
+	height: 16px;
+	background: #4f46e5;
+	border: 2px solid #d9d9d9;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.slider::-ms-track {
+	height: 4px;
+	background: transparent;
+	border-color: transparent;
+	color: transparent;
+}
+.slider::-ms-fill-lower {
+	background: #d9d9d9;
+	border-radius: 2px;
+}
+.slider::-ms-fill-upper {
+	background: #d9d9d9;
+	border-radius: 2px;
+} */

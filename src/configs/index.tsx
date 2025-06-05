@@ -13,8 +13,8 @@ export const BOTTOM_NAV_ITEMS: BottomNavType = [
 		icon: '/icons/trade_icon.svg',
 	},
 	{
-		label: 'Assets',
-		id: PAGES.ASSETS,
+		label: 'Wallet',
+		id: PAGES.WALLET,
 		icon: '/icons/wallet_icon.svg',
 	},
 	{
