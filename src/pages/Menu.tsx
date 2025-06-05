@@ -1,8 +1,12 @@
 import { defaultState } from '../configs';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { TradeState } from '../types/global.type';
 
 const Menu = () => {
+	const { setValue } = useLocalStorage<TradeState>('trade', defaultState);
+
 	const handleResetState = () => {
-		localStorage.setItem('trade', JSON.stringify(defaultState));
+		setValue(defaultState);
 		window.location.reload();
 	};
 

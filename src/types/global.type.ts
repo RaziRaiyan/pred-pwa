@@ -61,3 +61,11 @@ export type Market = {
 	eventEndDate: string;
 	orderBook: OrderBook;
 };
+
+export type TradeState = {
+	balance: number;
+	positions: Position[];
+	openOrders: Order[];
+	tradeHistory: Trade[];
+	hideOtherPairs?: boolean;
+};

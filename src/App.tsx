@@ -5,9 +5,10 @@ import Markets from './pages/Markets';
 import Trade from './pages/Trade';
 import Wallet from './pages/Wallet';
 import Menu from './pages/Menu';
+
 import { Toaster } from 'react-hot-toast';
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router';
-import { Link } from 'react-router-dom';
+import { createBrowserRouter, Outlet, RouterProvider, Link } from 'react-router';
+
 const App = () => {
 	const router = createBrowserRouter([
 		{
@@ -57,6 +58,7 @@ const App = () => {
 			],
 		},
 	]);
+
 	return (
 		<div className="flex flex-col h-full">
 			<Header />

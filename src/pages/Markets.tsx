@@ -31,8 +31,8 @@ const MarketCard = memo(({ market }: { market: Market }) => {
 				navigate(`/trades/${market.id}`);
 			}}
 		>
-			<div className="flex items-center h-12 w-12">
-				<img src={market.logo} alt="logo" className="h-12" />
+			<div className="flex items-center h-12 w-12 justify-center">
+				<img src={market.logo} width={48} height={48} alt="logo" />
 			</div>
 			<div>
 				<p className="text-lg font-bold text-black leading-6">

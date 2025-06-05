@@ -10,6 +10,9 @@ import { toast } from 'react-hot-toast';
 import Price from '../components/Price';
 import { marketData } from '../configs/dummy_data';
 import { useParams } from 'react-router-dom';
+import { defaultState } from '../configs';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { TradeState } from '../types/global.type';
 
 const Trade = () => {
 	const { marketId = 1 } = useParams();
@@ -33,34 +36,38 @@ const Trade = () => {
 	// Price simulation
 
 	// Load data from memory on component mount
+	const { getValue: getTradeData, setValue: setTradeData } =
+		useLocalStorage<TradeState>('trade', defaultState);
+	const { setValue: setLastMarketSelected } = useLocalStorage(
+		'lastMarketSelected',
+		{
+			lastMarketSelected: '1',
+		},
+	);
+
 	useEffect(() => {
-		const savedData = localStorage.getItem('trade');
+		const savedData = getTradeData();
 		if (savedData) {
-			setBalance(JSON.parse(savedData).balance);
-			setOpenOrders(JSON.parse(savedData).openOrders);
-			setPositions(JSON.parse(savedData).positions);
-			setTradeHistory(JSON.parse(savedData).tradeHistory);
-			setHideOtherPairs(JSON.parse(savedData).hideOtherPairs);
+			setBalance(savedData.balance);
+			setOpenOrders(savedData.openOrders);
+			setPositions(savedData.positions);
+			setTradeHistory(savedData.tradeHistory);
 		}
 
-		localStorage.setItem('lastMarketSelected', marketId as string);
+		setLastMarketSelected({ lastMarketSelected: marketId as string });
 	}, []);
 
 	// Save data to memory whenever state changes
 	const saveData = useCallback(() => {
-		// In a real app, this would use localStorage
 		// For this demo, we'll just keep state in memory
-		localStorage.setItem(
-			'trade',
-			JSON.stringify({
-				balance,
-				openOrders,
-				positions,
-				tradeHistory,
-				hideOtherPairs,
-			}),
-		);
-	}, [balance, openOrders, positions, tradeHistory, hideOtherPairs]);
+		setTradeData({
+			balance,
+			openOrders,
+			positions,
+			tradeHistory,
+			hideOtherPairs,
+		});
+	}, [balance, openOrders, positions, tradeHistory, hideOtherPairs, setTradeData]);
 
 	useEffect(() => {
 		saveData();

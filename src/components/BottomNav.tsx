@@ -6,6 +6,7 @@ import MenuIcon from '../icons/MenuIcon';
 import { PAGES } from '../types/pages.enum';
 import { clsx } from 'clsx';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const PageIconMap: Record<PAGES, React.FC<{ color: string; size?: number }>> = {
 	[PAGES.MARKETS]: MarketIcon,
@@ -20,11 +21,19 @@ const BottomNav = () => {
 
 	const selected = pathname.split('/')[1] as PAGES;
 
+	const { getValue } = useLocalStorage<{ lastMarketSelected: string }>(
+		'lastMarketSelected',
+		{
+			lastMarketSelected: '1',
+		},
+	);
+
 	const handleNavClick = (page: PAGES) => {
 		if (page === PAGES.TRADES) {
-			const lastMarketSelected = localStorage.getItem('lastMarketSelected');
+			const lastMarketSelected = getValue().lastMarketSelected;
+
 			if (lastMarketSelected) {
-				navigate(`/trades/${lastMarketSelected}`);
+				navigate(`/trades/${lastMarketSelected || 1}`);
 			}
 		} else {
 			navigate(page);

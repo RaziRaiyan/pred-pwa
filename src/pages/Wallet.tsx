@@ -1,15 +1,18 @@
 import { formatPrice } from '../utility';
 import { defaultState } from '../configs';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { TradeState } from '../types/global.type';
 
 const Wallet = () => {
+	const { getValue: getTradeData, setValue: setTradeData } =
+		useLocalStorage<TradeState>('trade', defaultState);
+
 	const handleResetState = () => {
-		localStorage.setItem('trade', JSON.stringify(defaultState));
+		setTradeData(defaultState);
 		window.location.reload();
 	};
 
-	const totalBalance = localStorage.getItem('trade')
-		? JSON.parse(localStorage.getItem('trade') || '{}').balance
-		: 0;
+	const totalBalance = getTradeData().balance ?? 0;
 
 	return (
 		<div className="flex flex-col gap-4 justify-center items-center h-full">

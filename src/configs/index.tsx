@@ -1,5 +1,6 @@
 import { PAGES } from '../types/pages.enum';
 import type { BottomNavType } from '../types/bottomnav.type';
+import type { TradeState } from '../types/global.type';
 
 export const BOTTOM_NAV_ITEMS: BottomNavType = [
 	{
@@ -24,7 +25,7 @@ export const BOTTOM_NAV_ITEMS: BottomNavType = [
 	},
 ];
 
-export const defaultState = {
+export const defaultState: TradeState = {
 	balance: 100,
 	positions: [],
 	openOrders: [],
