@@ -668,16 +668,16 @@ const Trade = () => {
 													</button>
 												</div>
 												<div className="text-sm space-y-1">
-													<div>
-														Entry:{' '}
+													<div className="flex items-center justify-between w-full">
+														<span>Entry</span>
 														<Price
 															price={
 																position.entryPrice
 															}
 														/>
 													</div>
-													<div>
-														Current:{' '}
+													<div className="flex items-center justify-between w-full">
+														<span>Current</span>
 														<Price
 															price={
 																position.currentPrice
@@ -685,21 +685,23 @@ const Trade = () => {
 														/>
 													</div>
 													<div
-														className={`font-medium ${
+														className={`font-medium flex items-center justify-between w-full ${
 															position.pnl >= 0
 																? 'text-green-600'
 																: 'text-red-600'
 														}`}
 													>
-														P&L:{' '}
-														<Price
-															price={position.pnl}
-														/>{' '}
-														(
-														{position.pnlPercent.toFixed(
-															2,
-														)}
-														%)
+														<span>P&L</span>
+														<span>
+															<Price
+																price={position.pnl}
+															/>{' '}
+															(
+															{position.pnlPercent.toFixed(
+																2,
+															)}
+															%)
+														</span>
 													</div>
 												</div>
 											</div>
@@ -784,22 +786,25 @@ const Trade = () => {
 													</span>
 												</div>
 												<div className="text-sm space-y-1">
-													<div>
-														Amount: {trade.shares} shares
+													<div className="flex items-center justify-between w-full">
+														<span>Amount</span>
+														<span>
+															{trade.shares} shares
+														</span>
 													</div>
-													<div>
-														Price:{' '}
+													<div className="flex items-center justify-between w-full">
+														<span>Price</span>
 														<Price price={trade.price} />
 													</div>
 													{trade.pnl !== undefined && (
 														<div
-															className={`font-medium ${
+															className={`font-medium flex items-center justify-between w-full ${
 																trade.pnl >= 0
 																	? 'text-green-600'
 																	: 'text-red-600'
 															}`}
 														>
-															P&L:{' '}
+															<span>P&L</span>
 															<Price
 																price={trade.pnl}
 															/>
